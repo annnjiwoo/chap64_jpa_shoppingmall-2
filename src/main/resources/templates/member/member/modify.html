@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout/layout2}">
+<div layout:fragment="content" class="container my-3">
+    <h1 class="mt-4">Modify Member</h1>
+    
+    <form id="memberForm" name="memberForm" action="/member/modify" th:action="@{/member/modify}" method="post">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email" th:value="${member.email}" readonly>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="text" class="form-control" id="password" name="password" th:value="${member.password}">
+            <small class="text-danger" th:errors="${memberDTO.password}"></small>
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" th:value="${member.name}" required>
+            <small class="text-danger" th:errors="${memberDTO.name}"></small>
+        </div>
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" class="form-control" id="address" name="address" th:value="${member.address}" required>
+            <small class="text-danger" th:errors="${memberDTO.address}"></small>
+        </div>
+        
+        <button type="submit" id="btnSubmit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+</html>

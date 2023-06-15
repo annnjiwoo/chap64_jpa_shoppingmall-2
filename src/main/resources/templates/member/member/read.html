@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout/layout2}">
+<div layout:fragment="content" class="container my-3">
+    <h1 class="mt-4">Member Details</h1>
+    
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Email:</th>
+                <td th:text="${member.email}"></td>
+            </tr>
+            <tr>
+                <th>Password:</th>
+                <td th:text="${member.password}"></td>
+            </tr>
+            <tr>
+                <th>Name:</th>
+                <td th:text="${member.name}"></td>
+            </tr>
+            <tr>
+                <th>Address:</th>
+                <td th:text="${member.address}"></td>
+            </tr>
+            <tr>
+                <th>Registration Date:</th>
+                <td th:text="${#temporals.format(member.modDate, 'yyyy/MM/dd HH:mm')}"></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <a th:href="@{/member/list}">
+        <button type="button" class="btn btn-outline-primary">Back to List</button>
+    </a>
+    <a th:href="@{/member/modify(email=${member.email})}">
+        <button type="button" class="btn btn-outline-success">Modify</button>
+    </a>       
+    <a th:href="@{/member/delete/{email}(email=${member.email})}">
+        <button type="button" class="btn btn-outline-warning">Delete</button>
+    </a>
+</div>
+</html>
