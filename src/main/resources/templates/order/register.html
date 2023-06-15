@@ -1,0 +1,152 @@
+<html layout:decorate="~{layout/layout2}">
+    <div layout:fragment="content" class="container my-3">
+        <div>
+            <form id="orderForm" name="orderForm" action="/order/save" th:action="@{/order/register}" method="post">
+                <div class="form-group">
+                    <label for="email">주문자 ID(email)-실제 이메일</label>
+                    <input type="text" class="form-control" id="email" name="email" required>
+                    <small class="text-danger" th:errors="${orderMasterDTO.email}"></small>
+                </div>
+                <div class="form-group">
+                    <label for="address">주소</label>
+                    <input type="text" class="form-control" id="address" name="address" th:field="${orderMasterDTO.address}" required>
+                    <small class="text-danger" th:errors="${orderMasterDTO.address}"></small>
+                </div>
+                <h5>주문 상품</h5>
+                <div id="orderItemsContainer">
+                    <div class="order-item">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="productId">상품선택</label>
+                                <select class="form-control product-select" id="productId" name="productId">
+                                    <option value="">상품을 선택하세요</option>
+                                    <option th:each="product : ${productList}" th:value="${product.productId}" th:text="${product.productName}"></option>
+                                </select>
+                                <small class="text-danger" th:errors="${orderMasterDTO.orderItems[0].productId}"></small>
+                            </div>
+                            <div>
+                            <input type="hidden" class="form-control" id="price" name="price" required>
+                            <small class="text-danger" th:errors="${orderMasterDTO.orderItems[0].price}"></small>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="quantity">수량</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" required>
+                                <small class="text-danger" th:errors="${orderMasterDTO.orderItems[0].quantity}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addOrderItemBtn" class="btn btn-primary">상품 추가</button>
+                <button type="submit" class="btn btn-primary">주문하기</button>
+            </form>
+        </div>
+    </div>
+</html>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        var orderItemIndex = 0;
+
+     // 상품 드롭다운리스트 채움
+       function populateProductDropdown() {
+            $.ajax({
+                url: '/order/product',
+                type: 'GET',
+                success: function(response) {
+                    var productList = response;
+                    var dropdownOptions = '<option value="">상품을 선택하세요</option>';
+
+                    for (var i = 0; i < productList.length; i++) {
+                        dropdownOptions += '<option value="' + productList[i].productId + '" data-price="' + productList[i].price + '">' + productList[i].productName + '</option>';
+                    }
+
+                    // Set the dropdown options
+                    $('.product-select').html(dropdownOptions);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+     
+       //populateProductDropdown();   
+     
+		  $('#addOrderItemBtn').on('click', function() {
+		    orderItemIndex++;
+		    var orderItemHtml =
+		        '<div class="order-item">' +
+		        '<div class="form-row">' +
+		        '<div class="form-group col-md-6">' +
+		        '<label for="productId">상품선택</label>' +
+		        '<select class="form-control product-select" name="orderItems[' + orderItemIndex + '].productId">' +
+		        '<option value="">상품을 선택하세요</option>' +
+		        '<option th:each="product : ${productList}" th:value="${product.productId}" th:data-price="${product.price}" th:text="${product.productName}"></option>' +
+		        '</select>' +
+		        '<small class="text-danger" th:errors="${orderMasterDTO.orderItems[' + orderItemIndex + '].productId}"></small>' +
+		        '</div>' +
+		        '<div class="form-group col-md-6">' +
+		        '<label for="quantity">수량</label>' +
+		        '<input type="number" class="form-control" name="orderItems[' + orderItemIndex + '].quantity" required>' +
+		        '<small class="text-danger" th:errors="${orderMasterDTO.orderItems[' + orderItemIndex + '].quantity}"></small>' +
+		        '</div>' +
+		        '</div>' +
+		        '</div>';
+		    $('#orderItemsContainer').append(orderItemHtml);
+		
+		    populateProductDropdown();
+		});
+		  $('#orderForm').on('submit', function(event) {
+			    event.preventDefault();
+
+			    let email = $('#email').val(); // email(사용자ID)
+			    let address = $("#address").val(); // 주소
+
+			    let orderItems = []; // 주문item 상품 담는 배열
+
+			    // 여러행 입력시 사용
+			    $('.order-item').each(function() {
+			        var productId = $(this).find('.product-select').val();
+			        var quantity = $(this).find('[name^="orderItems"]').val();
+			        var price = $(this).find('.product-select option:selected').data('price'); // 선택한 옵션의 price 값 가져오기
+			        if (productId && quantity) {
+			            orderItems.push({
+			                productId: productId,
+			                quantity: quantity,
+			                price: price // price 값을 orderItems에 추가
+			            });
+			        }
+			    });
+
+			    // 주문Master를 저장용 자바스크립 객체
+			    var formData = {
+			        email: email,
+			        address: address,
+			        orderItems: orderItems
+			    };
+
+			    // 값이 정상적으로 만들어지는지 디버깅
+			    //console.log("formData", formData)
+
+			    // ajax 호출로 저장 처리
+			    $.ajax({
+			        url: '/order/register',
+			        type: 'POST',
+			        data: JSON.stringify(formData),
+			        processData: false,
+			        contentType: 'application/json',
+			        success: function(response) {
+			            console.log(response);
+			            window.location.href = '/order/list';
+			        },
+			        error: function(xhr, status, error) {
+			            console.error(xhr.responseText);
+			        }
+			    });
+			});
+
+    });
+</script>
+
