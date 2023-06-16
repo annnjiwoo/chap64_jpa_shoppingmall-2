@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,11 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javalab.product.dto.OrderItemDTO;
 import com.javalab.product.dto.OrderMasterDTO;
 import com.javalab.product.dto.PageRequestDTO;
 import com.javalab.product.dto.PageResultDTO;
 import com.javalab.product.dto.ProductDTO;
 import com.javalab.product.entity.OrderMaster;
+import com.javalab.product.service.OrderItemService;
 import com.javalab.product.service.OrderMasterService;
 import com.javalab.product.service.ProductService;
 
@@ -38,10 +42,16 @@ public class OrderMasterController {
 	private final OrderMasterService orderMasterService;
 	// 주문화면에서 상품 드롭다운 리스트 데이터 생성하기 위한 용도
 	private final ProductService productService;
-	public OrderMasterController(OrderMasterService orderMasterService,
-								ProductService productService) {
+	
+	private final OrderItemService orderItemService;
+
+
+	public OrderMasterController(OrderMasterService orderMasterService, ProductService productService,
+			OrderItemService orderItemService) {
+		super();
 		this.orderMasterService = orderMasterService;
 		this.productService = productService;
+		this.orderItemService = orderItemService;
 	}
 
 	@GetMapping("/list")
@@ -108,16 +118,22 @@ public class OrderMasterController {
 	/*
 	 * 저장처리 메소드[Rest 방식]
 	 */
+
+	
 	@PostMapping("/register")
 	@ResponseBody
 	public String registerOrder(@RequestBody OrderMasterDTO orderMasterDTO) {
-		
 		log.info("저장 처리 시작 : " + orderMasterDTO.toString());
-	    
+		
+	    // 주문 상품 목록 가져오기
+	    List<OrderItemDTO> orderItems = orderMasterDTO.getOrderItems();
+	
+	    // 주문 등록 처리
 	    orderMasterService.register(orderMasterDTO);
-	        
+	    
 	    return "저장 작업 성공";
 	}
+	
 	
 	@GetMapping("/modify")
 	public void modify(@RequestParam("orderId") Integer orderId,
@@ -147,5 +163,12 @@ public class OrderMasterController {
 
 		return "redirect:/order/list";
 	}
+    @GetMapping("/delete/{orderId}")
+    public String deleteCategory(@PathVariable Integer orderId) {
+    	
+        boolean deleted = orderMasterService.remove(orderId);
+        
+        return "redirect:/order/list";
+    }
 
 }

@@ -29,6 +29,8 @@ public interface OrderMasterService {
 	default OrderMaster dtoToEntity(OrderMasterDTO orderMasterDTO) {
 		Member member = Member.builder()
 				.email(orderMasterDTO.getEmail())
+				.address(orderMasterDTO.getAddress())
+				
 				.build();
 		
 		return OrderMaster.builder().
@@ -60,7 +62,7 @@ public interface OrderMasterService {
 				.orderItemId(orderItem.getOrderItemId())
 				.productId(orderItem.getProduct().getProductId())
 				.quantity(orderItem.getQuantity())
-				//.price(orderItem.getPrice())
+				.price(orderItem.getPrice())
 				.build();
 	}
 
@@ -73,7 +75,7 @@ public interface OrderMasterService {
 	            		.productId(orderItemDTO.getProductId())
 	            		.build())
 	            .quantity(orderItemDTO.getQuantity())
-	            //.price(orderItemDTO.getPrice())
+	            .price(orderItemDTO.getPrice())
 	            .build();
 	}
 	

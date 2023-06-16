@@ -23,7 +23,7 @@ public interface OrderItemService {
     			.orderItemId(orderItemDTO.getOrderItemId())
     			.product(product)
     			.quantity(orderItemDTO.getQuantity())
-    			//.price(orderItemDTO.getPrice())
+    			.price(orderItemDTO.getPrice())
     			.build();
     }
 
@@ -32,6 +32,7 @@ public interface OrderItemService {
                 .orderItemId(orderItem.getOrderItemId())
                 .productId(orderItem.getProduct().getProductId())
                 .quantity(orderItem.getQuantity())
+                .price(orderItem.getPrice())
                 .build();
     }
 

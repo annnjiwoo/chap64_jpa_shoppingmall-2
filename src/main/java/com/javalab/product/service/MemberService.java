@@ -21,6 +21,7 @@ public interface MemberService {
                 .email(memberDTO.getEmail())
                 .password(memberDTO.getPassword())
                 .name(memberDTO.getName())
+                .address(memberDTO.getAddress())
                 .build();
     }
 
